@@ -12,7 +12,7 @@ public:
     // Если size == 0, поле raw_ptr_ должно быть равно nullptr
     explicit ArrayPtr(size_t size) {
         if (size == 0) return;
-        raw_ptr_ = new Type[size];
+        raw_ptr_ = new Type[size]{};
     }
 
     // Конструктор из сырого указателя, хранящего адрес массива в куче либо nullptr
@@ -51,10 +51,7 @@ public:
 
     // Возвращает true, если указатель ненулевой, и false в противном случае
     explicit operator bool() const {
-        if (raw_ptr_ == nullptr) {
-            return false;
-        }
-        return true;
+        return raw_ptr_ != nullptr;
     }
 
     // Возвращает значение сырого указателя, хранящего адрес начала массива
