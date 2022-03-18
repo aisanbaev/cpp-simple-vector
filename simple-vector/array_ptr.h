@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <utility>
 
 template <typename Type>
 class ArrayPtr {
@@ -27,6 +28,19 @@ public:
         delete[] raw_ptr_;
     }
 
+    ArrayPtr(ArrayPtr&& other){
+        assert(!raw_ptr_);
+        raw_ptr_ = std::move(other.raw_ptr_);
+        std::exchange(other.raw_ptr, nullptr);
+    }
+
+    ArrayPtr& operator=(ArrayPtr&& rhs) {
+        if (this != &rhs) {
+            swap(rhs);
+        }
+        return *this;
+    }
+
     // «апрещаем присваивание
     ArrayPtr& operator=(const ArrayPtr&) = delete;
 
@@ -51,7 +65,7 @@ public:
 
     // ¬озвращает true, если указатель ненулевой, и false в противном случае
     explicit operator bool() const {
-        return raw_ptr_ != nullptr;
+        return raw_ptr_;
     }
 
     // ¬озвращает значение сырого указател€, хран€щего адрес начала массива

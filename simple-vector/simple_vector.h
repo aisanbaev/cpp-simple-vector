@@ -3,7 +3,6 @@
 #include <cassert>
 #include <stdexcept>
 #include <initializer_list>
-#include <utility>
 
 #include "array_ptr.h"
 
@@ -68,6 +67,8 @@ public:
         std::move(other.begin(), other.end(), begin());
         std::exchange(other.size_, 0);
         std::exchange(other.capacity_, 0);
+        auto tmp = other.vec_ptr_.Release();
+        delete[] tmp;
     }
 
     SimpleVector& operator=(const SimpleVector& rhs) {
@@ -90,7 +91,7 @@ public:
     void PushBack(const Type& item) {
         if (capacity_ != 0 && capacity_ == size_) {
             ArrayPtr<Type> tmp_ptr(size_ * 2);
-            std::copy(begin(), end(), &tmp_ptr[0]);
+            std::copy(begin(), end(), tmp_ptr.Get());
             vec_ptr_.swap(tmp_ptr);
             capacity_ *= 2;
         } else if (capacity_ == 0) {
@@ -130,9 +131,9 @@ public:
         if (capacity_ != 0 && capacity_ == size_) {
             ArrayPtr<Type> tmp_ptr(size_ * 2);
 
-            std::copy(begin(), begin() + out_pos, &tmp_ptr[0]);
+            std::copy(begin(), begin() + out_pos, tmp_ptr.Get());
             tmp_ptr[out_pos] = value;
-            std::copy(begin() + out_pos, end(), &tmp_ptr[out_pos + 1]);
+            std::copy(begin() + out_pos, end(), tmp_ptr.Get() + out_pos + 1);
 
             vec_ptr_.swap(tmp_ptr);
             capacity_ *= 2;
@@ -160,9 +161,9 @@ public:
         if (capacity_ != 0 && capacity_ == size_) {
             ArrayPtr<Type> tmp_ptr(size_ * 2);
 
-            std::copy(std::make_move_iterator(begin()), std::make_move_iterator(begin()) + out_pos, &tmp_ptr[0]);
+            std::copy(std::make_move_iterator(begin()), std::make_move_iterator(begin()) + out_pos, tmp_ptr.Get());
             tmp_ptr[out_pos] = std::move(value);
-            std::copy(std::make_move_iterator(begin() + out_pos), std::make_move_iterator(end()), &tmp_ptr[out_pos + 1]);
+            std::copy(std::make_move_iterator(begin() + out_pos), std::make_move_iterator(end()), tmp_ptr.Get() + out_pos + 1);
 
             vec_ptr_.swap(tmp_ptr);
             capacity_ *= 2;
@@ -232,20 +233,20 @@ public:
 
     // Возвращает ссылку на элемент с индексом index
     Type& operator[](size_t index) noexcept {
-        assert (index >= 0 && index < capacity_);
+        assert (index < size_);
         return vec_ptr_[index];
     }
 
     // Возвращает константную ссылку на элемент с индексом index
     const Type& operator[](size_t index) const noexcept {
-        assert (index >= 0 && index < capacity_);
+        assert (index < size_);
         return vec_ptr_[index];
     }
 
     // Возвращает константную ссылку на элемент с индексом index
     // Выбрасывает исключение std::out_of_range, если index >= size
     Type& At(size_t index) {
-        if (index < capacity_) {
+        if (index < size_) {
             return vec_ptr_[index];
         } else {
             throw std::out_of_range("invalid index");
@@ -255,7 +256,7 @@ public:
     // Возвращает константную ссылку на элемент с индексом index
     // Выбрасывает исключение std::out_of_range, если index >= size
     const Type& At(size_t index) const {
-        if (index < capacity_) {
+        if (index < size_) {
             return vec_ptr_[index];
         } else {
             throw std::out_of_range("invalid index");
@@ -277,7 +278,9 @@ public:
             capacity_ = new_size;
 
         } else if (new_size < capacity_ && new_size > size_) {
-            std::fill(&vec_ptr_[size_], &vec_ptr_[new_size], 0);
+            for (size_t i = size_; i < new_size; ++i) {
+                vec_ptr_[i] = Type{};
+            }
         }
         size_ = new_size;
     }
