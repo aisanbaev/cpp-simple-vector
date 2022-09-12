@@ -26,7 +26,7 @@ public:
 
     SimpleVector() noexcept = default;
 
-    // Создаёт вектор из size элементов, инициализированных значением по умолчанию
+    // РЎРѕР·РґР°С‘С‚ РІРµРєС‚РѕСЂ РёР· size СЌР»РµРјРµРЅС‚РѕРІ, РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹С… Р·РЅР°С‡РµРЅРёРµРј РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
     explicit SimpleVector(size_t size)
         : size_(size)
         , capacity_(size) 
@@ -35,14 +35,14 @@ public:
         items_.swap(tmp);
     }
 
-    // Создаёт вектор из size элементов, инициализированных значением value
+    // РЎРѕР·РґР°С‘С‚ РІРµРєС‚РѕСЂ РёР· size СЌР»РµРјРµРЅС‚РѕРІ, РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹С… Р·РЅР°С‡РµРЅРёРµРј value
     SimpleVector(size_t size, const Type& value)
         : SimpleVector(size)
     {
         std::fill(begin(), end(), value);
     }
 
-    // Создаёт вектор из std::initializer_list
+    // РЎРѕР·РґР°С‘С‚ РІРµРєС‚РѕСЂ РёР· std::initializer_list
     SimpleVector(std::initializer_list<Type> init)
         : SimpleVector(init.size())
     {
@@ -53,21 +53,21 @@ public:
         Reserve(obj.GetCapacity());
     }
 
-    // Конструктор копирования
+    // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ
     SimpleVector(const SimpleVector& other) 
         : SimpleVector(other.size_)
     {
         std::copy(other.begin(), other.end(), begin());
     }
 
-    // Конструктор перемещения
+    // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїРµСЂРµРјРµС‰РµРЅРёСЏ
     SimpleVector(SimpleVector&& other) {  
         items_.swap(other.items_);
         size_ = std::exchange(other.size_, 0);
         capacity_ = std::exchange(other.capacity_, 0);
     }
 
-    // Оператор присваивания
+    // РћРїРµСЂР°С‚РѕСЂ РїСЂРёСЃРІР°РёРІР°РЅРёСЏ
     SimpleVector& operator=(const SimpleVector& rhs) {
         if (this != &rhs) {
             SimpleVector rhs_copy(rhs);
@@ -77,7 +77,7 @@ public:
         return *this;
     }
 
-    // Оператор перемещения
+    // РћРїРµСЂР°С‚РѕСЂ РїРµСЂРµРјРµС‰РµРЅРёСЏ
     SimpleVector& operator=(SimpleVector&& rhs) noexcept {
         if (this != &rhs) {
             size_ = std::exchange(rhs.size_, 0);
@@ -210,7 +210,7 @@ public:
         size_ = 0;
     }
 
-    // При увеличении размера новые элементы получают значение по умолчанию для типа Type
+    // РџСЂРё СѓРІРµР»РёС‡РµРЅРёРё СЂР°Р·РјРµСЂР° РЅРѕРІС‹Рµ СЌР»РµРјРµРЅС‚С‹ РїРѕР»СѓС‡Р°СЋС‚ Р·РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ С‚РёРїР° Type
     void Resize(size_t new_size) {
         if (new_size <= size_) {
             size_ = new_size;
